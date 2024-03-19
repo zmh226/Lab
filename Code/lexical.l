@@ -3,13 +3,13 @@
 %}
 digit [0-9]
 letter [a-z_A-Z]
-INT [+-]?(0|[1-9]{digit}*)
-FLOAT [+-]?([0-9]*\.[0-9]*)|[+-]?([0-9]*\.?[0-9]+|[0-9]+\.)[eE][+-]?{digit}+
+INT 0|([1-9]{digit}*)
+FLOAT ([0-9]+\.[0-9]+)|((([0-9]*\.[0-9]+)|([0-9]+\.))[eE][+-]?{digit}+)
 ID {letter}[0-9a-z_A-Z]*
 SEMI ";"
 COMMA ","
 ASSIGNOP "="
-RELOP >|<|>=|<=|==|!=
+RELOP ">"|"<"|">="|"<="|"=="|"!="
 PLUS "+"
 MINUS "-"
 STAR "*"
@@ -62,9 +62,7 @@ block [ \t\r]
 {INT} {printf("int num:%d\n",atoi(yytext));}
 {FLOAT} {printf("float num:%f\n",atof(yytext));}
 {block} {;}
-{digit}{letter}+ {printf("Error type A at line %d: Illegal format of id \'%s\'\n",line,yytext);}
-[+-]?([0-9]*\.?[0-9]+|[0-9]+\.)[eE][+-]?|[+-]?([0-9]*\.?[0-9]+|[0-9]+\.)[eE][+-]?{letter}[a-zA-z0-9]* {printf("Error type A at line %d:  Illegal floating point number \'%s\'\n",line,yytext);}
-{FLOAT}{FLOAT}+ {printf("Error type A at line %d: Illegal floating point number \'%s\'\n",line,yytext);}
+((([0-9]*\.[0-9]+)|([0-9]+\.))[eE][+-]?)|((([0-9]*\.[0-9]+)|([0-9]+\.))[eE][+-]?{letter}[a-zA-z0-9]*) {printf("Error type A at line %d:  Illegal floating point number \'%s\'\n",line,yytext);}
 . {printf("Error type A at line %d: Mysterious characters \'%s\'\n",line,yytext);}
 
 %%
