@@ -30,7 +30,8 @@ int main(int argc, char** argv)
   root = NULL;
   yyrestart(f); 
   yyparse(); 
-  if(flexflag==0&&syntaxflag==0){
+  if(flexflag==0&&syntaxflag==0)
+  {
   printtree(root,0);
   }
   return 0; }

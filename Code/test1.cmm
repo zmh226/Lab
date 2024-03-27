@@ -1,4 +1,10 @@
+struct{
+	int car;
+};
 int main()
 {
-	float c = 1.05e;
+    struct Car car;
+    car.color=0
+	car.weight=1.111
+	i += 1;
 }
