@@ -66,7 +66,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "syntax.y"
+#line 1 "./syntax.y"
  
  #include "lex.yy.c" 
  
@@ -84,7 +84,7 @@ void CTsilbing(Node* node,Node* silbing);
 
 void printtree(Node*root,int depth);
 
-#line 88 "syntax.tab.c"
+#line 88 "./syntax.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -166,12 +166,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "syntax.y"
+#line 18 "./syntax.y"
 
    int type_int;
    struct TreeNode* node;
 
-#line 175 "syntax.tab.c"
+#line 175 "./syntax.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -1479,77 +1479,77 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 43 "syntax.y"
+#line 43 "./syntax.y"
                    {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Program","",0,0);
 CTchild((yyval.node),(yyvsp[0].node));
 root=(yyval.node);
 }
-#line 1488 "syntax.tab.c"
+#line 1488 "./syntax.tab.c"
     break;
 
   case 3:
-#line 47 "syntax.y"
+#line 47 "./syntax.y"
                             {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"ExtDefList","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1494 "syntax.tab.c"
+#line 1494 "./syntax.tab.c"
     break;
 
   case 4:
-#line 48 "syntax.y"
+#line 48 "./syntax.y"
             {(yyval.node)=NULL;}
-#line 1500 "syntax.tab.c"
+#line 1500 "./syntax.tab.c"
     break;
 
   case 5:
-#line 49 "syntax.y"
+#line 49 "./syntax.y"
                                    {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"ExtDef","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1506 "syntax.tab.c"
+#line 1506 "./syntax.tab.c"
     break;
 
   case 6:
-#line 50 "syntax.y"
+#line 50 "./syntax.y"
                  {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"ExtDef","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1512 "syntax.tab.c"
+#line 1512 "./syntax.tab.c"
     break;
 
   case 7:
-#line 51 "syntax.y"
+#line 51 "./syntax.y"
                           {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"ExtDef","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1518 "syntax.tab.c"
+#line 1518 "./syntax.tab.c"
     break;
 
   case 8:
-#line 52 "syntax.y"
+#line 52 "./syntax.y"
              { syntaxflag=1;//printf("extdef-error semi ");
 }
-#line 1525 "syntax.tab.c"
+#line 1525 "./syntax.tab.c"
     break;
 
   case 9:
-#line 55 "syntax.y"
+#line 55 "./syntax.y"
                     {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"ExtDecList","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1531 "syntax.tab.c"
+#line 1531 "./syntax.tab.c"
     break;
 
   case 10:
-#line 56 "syntax.y"
+#line 56 "./syntax.y"
                          {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"ExtDecList","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1537 "syntax.tab.c"
+#line 1537 "./syntax.tab.c"
     break;
 
   case 11:
-#line 57 "syntax.y"
+#line 57 "./syntax.y"
                  {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Specifier","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1543 "syntax.tab.c"
+#line 1543 "./syntax.tab.c"
     break;
 
   case 12:
-#line 58 "syntax.y"
+#line 58 "./syntax.y"
                   {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Specifier","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1549 "syntax.tab.c"
+#line 1549 "./syntax.tab.c"
     break;
 
   case 13:
-#line 59 "syntax.y"
+#line 59 "./syntax.y"
                                                {(yyval.node)=createnode((yyvsp[-4].node)->sline,0,"StructSpecifier","",0,0);CTchild((yyval.node),(yyvsp[-4].node));
                                                if((yyvsp[-3].node)==NULL) CTsilbing((yyvsp[-4].node),(yyvsp[-2].node));
                                                CTsilbing((yyvsp[-4].node),(yyvsp[-3].node));
@@ -1558,91 +1558,91 @@ root=(yyval.node);
                                                CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));
                                                CTsilbing((yyvsp[-1].node),(yyvsp[0].node));
                                                }
-#line 1562 "syntax.tab.c"
+#line 1562 "./syntax.tab.c"
     break;
 
   case 14:
-#line 67 "syntax.y"
+#line 67 "./syntax.y"
               {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"StructSpecifier","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1568 "syntax.tab.c"
+#line 1568 "./syntax.tab.c"
     break;
 
   case 15:
-#line 68 "syntax.y"
+#line 68 "./syntax.y"
             {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"OptTag","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1574 "syntax.tab.c"
+#line 1574 "./syntax.tab.c"
     break;
 
   case 16:
-#line 69 "syntax.y"
+#line 69 "./syntax.y"
              {(yyval.node)=NULL;}
-#line 1580 "syntax.tab.c"
+#line 1580 "./syntax.tab.c"
     break;
 
   case 17:
-#line 70 "syntax.y"
+#line 70 "./syntax.y"
         {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Tag","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1586 "syntax.tab.c"
+#line 1586 "./syntax.tab.c"
     break;
 
   case 18:
-#line 71 "syntax.y"
+#line 71 "./syntax.y"
             {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"VarDec","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1592 "syntax.tab.c"
+#line 1592 "./syntax.tab.c"
     break;
 
   case 19:
-#line 72 "syntax.y"
+#line 72 "./syntax.y"
                    {(yyval.node)=createnode((yyvsp[-3].node)->sline,0,"VarDec","",0,0);CTchild((yyval.node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1598 "syntax.tab.c"
+#line 1598 "./syntax.tab.c"
     break;
 
   case 20:
-#line 73 "syntax.y"
+#line 73 "./syntax.y"
            { syntaxflag=1;//printf("vardec error RB ");
 }
-#line 1605 "syntax.tab.c"
+#line 1605 "./syntax.tab.c"
     break;
 
   case 21:
-#line 75 "syntax.y"
+#line 75 "./syntax.y"
                           {(yyval.node)=createnode((yyvsp[-3].node)->sline,0,"FunDec","",0,0);CTchild((yyval.node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1611 "syntax.tab.c"
+#line 1611 "./syntax.tab.c"
     break;
 
   case 22:
-#line 76 "syntax.y"
+#line 76 "./syntax.y"
            {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"FunDec","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1617 "syntax.tab.c"
+#line 1617 "./syntax.tab.c"
     break;
 
   case 23:
-#line 77 "syntax.y"
+#line 77 "./syntax.y"
            { syntaxflag=1;//printf("FunDec error RP ");
 }
-#line 1624 "syntax.tab.c"
+#line 1624 "./syntax.tab.c"
     break;
 
   case 24:
-#line 79 "syntax.y"
+#line 79 "./syntax.y"
                                   {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"VarList","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1630 "syntax.tab.c"
+#line 1630 "./syntax.tab.c"
     break;
 
   case 25:
-#line 80 "syntax.y"
+#line 80 "./syntax.y"
            {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"VarList","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1636 "syntax.tab.c"
+#line 1636 "./syntax.tab.c"
     break;
 
   case 26:
-#line 81 "syntax.y"
+#line 81 "./syntax.y"
                             {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"ParamDec","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1642 "syntax.tab.c"
+#line 1642 "./syntax.tab.c"
     break;
 
   case 27:
-#line 82 "syntax.y"
+#line 82 "./syntax.y"
                                 {(yyval.node)=createnode((yyvsp[-3].node)->sline,0,"CompSt","",0,0);CTchild((yyval.node),(yyvsp[-3].node));
                                  if((yyvsp[-2].node)!=NULL&&(yyvsp[-1].node)!=NULL)
                                      {CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
@@ -1652,277 +1652,277 @@ root=(yyval.node);
                                      {CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[0].node));}
                                  else
                                      {CTsilbing((yyvsp[-3].node),(yyvsp[0].node));}}
-#line 1656 "syntax.tab.c"
+#line 1656 "./syntax.tab.c"
     break;
 
   case 28:
-#line 91 "syntax.y"
+#line 91 "./syntax.y"
            { syntaxflag=1;//printf("compst error rc ");
 }
-#line 1663 "syntax.tab.c"
+#line 1663 "./syntax.tab.c"
     break;
 
   case 29:
-#line 93 "syntax.y"
+#line 93 "./syntax.y"
                           {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"StmtList","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1669 "syntax.tab.c"
+#line 1669 "./syntax.tab.c"
     break;
 
   case 30:
-#line 94 "syntax.y"
+#line 94 "./syntax.y"
              {(yyval.node)=NULL;}
-#line 1675 "syntax.tab.c"
+#line 1675 "./syntax.tab.c"
     break;
 
   case 31:
-#line 95 "syntax.y"
+#line 95 "./syntax.y"
                       {syntaxflag=1;printf("StmtList error ");
 }
-#line 1682 "syntax.tab.c"
+#line 1682 "./syntax.tab.c"
     break;
 
   case 32:
-#line 98 "syntax.y"
+#line 98 "./syntax.y"
                 {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1688 "syntax.tab.c"
+#line 1688 "./syntax.tab.c"
     break;
 
   case 33:
-#line 99 "syntax.y"
+#line 99 "./syntax.y"
          {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1694 "syntax.tab.c"
+#line 1694 "./syntax.tab.c"
     break;
 
   case 34:
-#line 100 "syntax.y"
+#line 100 "./syntax.y"
                   {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1700 "syntax.tab.c"
+#line 1700 "./syntax.tab.c"
     break;
 
   case 35:
-#line 101 "syntax.y"
+#line 101 "./syntax.y"
                     {(yyval.node)=createnode((yyvsp[-4].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[-4].node));CTsilbing((yyvsp[-4].node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1706 "syntax.tab.c"
+#line 1706 "./syntax.tab.c"
     break;
 
   case 36:
-#line 102 "syntax.y"
+#line 102 "./syntax.y"
                               {(yyval.node)=createnode((yyvsp[-6].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[-6].node));CTsilbing((yyvsp[-6].node),(yyvsp[-5].node));CTsilbing((yyvsp[-5].node),(yyvsp[-4].node));CTsilbing((yyvsp[-4].node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1712 "syntax.tab.c"
+#line 1712 "./syntax.tab.c"
     break;
 
   case 37:
-#line 103 "syntax.y"
+#line 103 "./syntax.y"
                        {(yyval.node)=createnode((yyvsp[-4].node)->sline,0,"Stmt","",0,0);CTchild((yyval.node),(yyvsp[-4].node));CTsilbing((yyvsp[-4].node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1718 "syntax.tab.c"
+#line 1718 "./syntax.tab.c"
     break;
 
   case 38:
-#line 104 "syntax.y"
+#line 104 "./syntax.y"
              { syntaxflag=1;//printf("stmt error semi ");
 }
-#line 1725 "syntax.tab.c"
+#line 1725 "./syntax.tab.c"
     break;
 
   case 39:
-#line 106 "syntax.y"
+#line 106 "./syntax.y"
                                     {syntaxflag=1;//printf("if error rp ");
 }
-#line 1732 "syntax.tab.c"
+#line 1732 "./syntax.tab.c"
     break;
 
   case 40:
-#line 108 "syntax.y"
+#line 108 "./syntax.y"
                             {syntaxflag=1; //printf("while error rp" );
 }
-#line 1739 "syntax.tab.c"
+#line 1739 "./syntax.tab.c"
     break;
 
   case 41:
-#line 112 "syntax.y"
+#line 112 "./syntax.y"
                       {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"DefList","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1745 "syntax.tab.c"
+#line 1745 "./syntax.tab.c"
     break;
 
   case 42:
-#line 113 "syntax.y"
+#line 113 "./syntax.y"
              {(yyval.node)=NULL;}
-#line 1751 "syntax.tab.c"
+#line 1751 "./syntax.tab.c"
     break;
 
   case 43:
-#line 115 "syntax.y"
+#line 115 "./syntax.y"
                              {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Def","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1757 "syntax.tab.c"
+#line 1757 "./syntax.tab.c"
     break;
 
   case 44:
-#line 116 "syntax.y"
+#line 116 "./syntax.y"
                        {syntaxflag=1;//printf("def Specifier error semi ");
 }
-#line 1764 "syntax.tab.c"
+#line 1764 "./syntax.tab.c"
     break;
 
   case 45:
-#line 118 "syntax.y"
+#line 118 "./syntax.y"
               {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"DecList","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1770 "syntax.tab.c"
+#line 1770 "./syntax.tab.c"
     break;
 
   case 46:
-#line 119 "syntax.y"
+#line 119 "./syntax.y"
                     {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"DecList","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1776 "syntax.tab.c"
+#line 1776 "./syntax.tab.c"
     break;
 
   case 47:
-#line 120 "syntax.y"
+#line 120 "./syntax.y"
              {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Dec","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1782 "syntax.tab.c"
+#line 1782 "./syntax.tab.c"
     break;
 
   case 48:
-#line 121 "syntax.y"
+#line 121 "./syntax.y"
                      {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Dec","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1788 "syntax.tab.c"
+#line 1788 "./syntax.tab.c"
     break;
 
   case 49:
-#line 122 "syntax.y"
+#line 122 "./syntax.y"
                        {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1794 "syntax.tab.c"
+#line 1794 "./syntax.tab.c"
     break;
 
   case 50:
-#line 123 "syntax.y"
+#line 123 "./syntax.y"
               {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1800 "syntax.tab.c"
+#line 1800 "./syntax.tab.c"
     break;
 
   case 51:
-#line 124 "syntax.y"
+#line 124 "./syntax.y"
              {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1806 "syntax.tab.c"
+#line 1806 "./syntax.tab.c"
     break;
 
   case 52:
-#line 125 "syntax.y"
+#line 125 "./syntax.y"
                 {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1812 "syntax.tab.c"
+#line 1812 "./syntax.tab.c"
     break;
 
   case 53:
-#line 126 "syntax.y"
+#line 126 "./syntax.y"
                {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1818 "syntax.tab.c"
+#line 1818 "./syntax.tab.c"
     break;
 
   case 54:
-#line 127 "syntax.y"
+#line 127 "./syntax.y"
                 {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1824 "syntax.tab.c"
+#line 1824 "./syntax.tab.c"
     break;
 
   case 55:
-#line 128 "syntax.y"
+#line 128 "./syntax.y"
                {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1830 "syntax.tab.c"
+#line 1830 "./syntax.tab.c"
     break;
 
   case 56:
-#line 129 "syntax.y"
+#line 129 "./syntax.y"
               {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1836 "syntax.tab.c"
+#line 1836 "./syntax.tab.c"
     break;
 
   case 57:
-#line 130 "syntax.y"
+#line 130 "./syntax.y"
             {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1842 "syntax.tab.c"
+#line 1842 "./syntax.tab.c"
     break;
 
   case 58:
-#line 131 "syntax.y"
+#line 131 "./syntax.y"
             {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1848 "syntax.tab.c"
+#line 1848 "./syntax.tab.c"
     break;
 
   case 59:
-#line 132 "syntax.y"
+#line 132 "./syntax.y"
           {(yyval.node)=createnode((yyvsp[-1].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1854 "syntax.tab.c"
+#line 1854 "./syntax.tab.c"
     break;
 
   case 60:
-#line 133 "syntax.y"
+#line 133 "./syntax.y"
                 {(yyval.node)=createnode((yyvsp[-3].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1860 "syntax.tab.c"
+#line 1860 "./syntax.tab.c"
     break;
 
   case 61:
-#line 134 "syntax.y"
+#line 134 "./syntax.y"
            {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1866 "syntax.tab.c"
+#line 1866 "./syntax.tab.c"
     break;
 
   case 62:
-#line 135 "syntax.y"
+#line 135 "./syntax.y"
                 {(yyval.node)=createnode((yyvsp[-3].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-3].node));CTsilbing((yyvsp[-3].node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1872 "syntax.tab.c"
+#line 1872 "./syntax.tab.c"
     break;
 
   case 63:
-#line 136 "syntax.y"
+#line 136 "./syntax.y"
              {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1878 "syntax.tab.c"
+#line 1878 "./syntax.tab.c"
     break;
 
   case 64:
-#line 137 "syntax.y"
+#line 137 "./syntax.y"
      {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1884 "syntax.tab.c"
+#line 1884 "./syntax.tab.c"
     break;
 
   case 65:
-#line 138 "syntax.y"
+#line 138 "./syntax.y"
       {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1890 "syntax.tab.c"
+#line 1890 "./syntax.tab.c"
     break;
 
   case 66:
-#line 139 "syntax.y"
+#line 139 "./syntax.y"
         {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Exp","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1896 "syntax.tab.c"
+#line 1896 "./syntax.tab.c"
     break;
 
   case 67:
-#line 140 "syntax.y"
+#line 140 "./syntax.y"
                   {syntaxflag=1;//printf("exp exp LP error RP");
 }
-#line 1903 "syntax.tab.c"
+#line 1903 "./syntax.tab.c"
     break;
 
   case 68:
-#line 142 "syntax.y"
+#line 142 "./syntax.y"
                   {syntaxflag=1;//printf("exp exp lb error RB");
 }
-#line 1910 "syntax.tab.c"
+#line 1910 "./syntax.tab.c"
     break;
 
   case 69:
-#line 146 "syntax.y"
+#line 146 "./syntax.y"
                       {(yyval.node)=createnode((yyvsp[-2].node)->sline,0,"Args","",0,0);CTchild((yyval.node),(yyvsp[-2].node));CTsilbing((yyvsp[-2].node),(yyvsp[-1].node));CTsilbing((yyvsp[-1].node),(yyvsp[0].node));}
-#line 1916 "syntax.tab.c"
+#line 1916 "./syntax.tab.c"
     break;
 
   case 70:
-#line 147 "syntax.y"
+#line 147 "./syntax.y"
       {(yyval.node)=createnode((yyvsp[0].node)->sline,0,"Args","",0,0);CTchild((yyval.node),(yyvsp[0].node));}
-#line 1922 "syntax.tab.c"
+#line 1922 "./syntax.tab.c"
     break;
 
 
-#line 1926 "syntax.tab.c"
+#line 1926 "./syntax.tab.c"
 
       default: break;
     }
@@ -2154,7 +2154,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 149 "syntax.y"
+#line 149 "./syntax.y"
 
 
  
