@@ -1,8 +1,13 @@
-float fo() {
-  float f1 = e1.e1;
-  float f2 = -213.e1;
-  f1 = f1 / 0.1e+1;
-  f2 = f1 * 0213.320e+2 - (.1e1 - 1.e1);
+
+struct Position
+{
+  float x,y;
+};
+int func(int a);
+int func(struct Position p);
+int main()
+{
+
 }
 
 

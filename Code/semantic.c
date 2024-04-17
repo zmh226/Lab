@@ -140,15 +140,10 @@ FieldList ParamDec(Node*root){//ParamDec → Specifier VarDec
     return newlist;
 }
 
-void CompSt(Node* root,Type ret_type)
-{//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！但语句块分析完毕后退栈应当在Compst中进行
-    // printf("compst line%d\n",root->sline);
-    // printf("%s\n",root->child->silbing->name);
+void CompSt(Node* root,Type ret_type){//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！但语句块分析完毕后退栈应当在Compst中进行 
     Node* t1=root->child->silbing;
     Node* t2=NULL;
     Node* t3=NULL;
-    // if(t1==NULL) printf("empty point t1\n");
-    //printf("%s\n",t1->name);
     if(t1->silbing!=NULL)
     {
         t2=t1->silbing;
@@ -159,8 +154,6 @@ void CompSt(Node* root,Type ret_type)
             if(strcmp(t2->name,"StmtList")==0) StmtList(t2,ret_type);
         }
     }
-    // printf("before pop\n");
-    //printf("DEPTH:%d\n",DEPTH);    
     pop_stacktable();  
 }
 
