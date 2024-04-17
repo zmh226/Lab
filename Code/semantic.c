@@ -71,7 +71,7 @@ void ExtDecList(Node* root,Type type){//ExtDecList → VarDec | VarDec COMMA Ext
 }
 
 void FunDec(Node* root,Type type){//FunDec → ID LP VarList RP | ID LP RP 
-    // printf("FUC LINE: %d\n",root->sline);
+    //printf("FUC LINE: %d\n",root->sline);
     Node*t1=root->child;
     Type type1=(Type)malloc(sizeof(struct Type_));
     type1->kind=FUNCTION;
@@ -118,12 +118,19 @@ void FunDec(Node* root,Type type){//FunDec → ID LP VarList RP | ID LP RP
          FieldList func = init_FieldList_(t1-> sID,type1);
          HashNode newnode = init_HashNode_(func,0);
          insert0_hashnode(newnode);
+         //printf("hello\n");
     }
 }
 
 FieldList ParamDec(Node*root){//ParamDec → Specifier VarDec 
      Node*t1 = root->child;
      Node*t2= t1-> silbing;
+     Type type0 = (Type)malloc(sizeof(struct Type_));
+     type0->kind=BASIC;
+     int flag = Determin(t2->child->sID,type0);
+     if(flag==3){
+        printf("Error type 3 at Line %d: Redifned  Variable %s\n",t2->child->sline,t2->child->sID);
+     }
      Type type1 = Specifier(t1);
      if(type1 ==NULL)
        return NULL;
@@ -153,14 +160,14 @@ void CompSt(Node* root,Type ret_type)
         }
     }
     // printf("before pop\n");
-    // printf("DEPTH:%d\n",DEPTH);    
+    //printf("DEPTH:%d\n",DEPTH);    
     pop_stacktable();  
 }
 
 void StmtList(Node* root,Type ret_type)
 {
-    //if(root==NULL) return;
-    printf("stmtlistline: %d\n",root->sline);
+    if(root==NULL) return;
+    //printf("stmtlistline: %d\n",root->sline);
     Node*t1=root->child;   
     if(t1!=NULL)
     {
@@ -177,7 +184,7 @@ void Stmt(Node* root,Type ret_type)
     Node* t3=NULL;
     Node* t5=NULL;
     Node* t7=NULL;
-    printf("stmt line:%d\n",root->sline);
+    //printf("stmt line:%d\n",root->sline);
     if(t2!=NULL)
     {
         t3=t2->silbing;
@@ -194,11 +201,12 @@ void Stmt(Node* root,Type ret_type)
     if(strcmp(t1->name,"CompSt")==0)
     {
         push_stacktable();
+        //printf("haha\n");
         CompSt(t1,ret_type);
     }
     else if(strcmp(t1->name,"RETURN")==0)
     {
-        printf("RETIRN LINE %d",t1->sline);
+        //printf("RETIRN LINE %d\n",t1->sline);
         t2=t1->silbing;
         if(typeEqual(Exp(t2),ret_type)!=1)
         {
@@ -213,6 +221,7 @@ void Stmt(Node* root,Type ret_type)
     else if(strcmp(t1->name,"IF")==0)
     {
         Exp(t3);
+        //printf("haha1\n");
         Stmt(t5,ret_type);
         if(t7!=NULL)
         {
@@ -309,7 +318,7 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
     if(t2==NULL) 
     {
         Type temp=serchvar(t1->sID);
-        
+        //printf("1");
         if(temp==NULL)
         {
             printf("Error type 1 at Line %d:The variable %s is undefined when used.\n",t1->sline,t1->sID);
@@ -322,7 +331,7 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
         // printf("use func line:%d",t1->sline);
         Type temp=serchfunc(t1->sID);
         Type temp2=serchvar(t1->sID);
-        if(temp2->kind!=FUNCTION)
+        if(temp2!=NULL &&temp2->kind!=FUNCTION)
         {
             printf("Error type 11 at Line %d: Use function call operator on a regular variable.\n",t1->sline);
             return NULL;
@@ -356,7 +365,7 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
                     if(type1==NULL||type2==NULL||typeEqual(type1,type2)!=1)
                     {
                         printf("Error type 9 at Line %d: The number or type of actual parameters involved in function %s calls do not match\n",t1->sline,t1->sID);
-                        return NULL;
+                        return temp->u.function.return_parameter;
                     }
                     t3_temp=t3_temp->silbing->silbing->child;
                     type1=Exp(t3_temp);
@@ -368,14 +377,13 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
                     if(type1==NULL||type2==NULL||typeEqual(type1,type2)!=1)
                     {
                         printf("Error type 9 at Line %d: The number or type of actual parameters involved in function %s calls do not match\n",t1->sline,t1->sID);
-                        return NULL;
                     }
-                    else return temp->u.function.return_parameter;
+                    return temp->u.function.return_parameter;
                 }//number not equal
                 else
                 {
                     printf("Error type 9 at Line %d: The number or type of actual parameters involved in function %s calls do not match\n",t1->sline,t1->sID);
-                    return NULL;
+                    return temp->u.function.return_parameter;
                 } 
             }
         }
@@ -410,11 +418,13 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
         return Exp(t1)->u.array.elem;
     }
     else if(strcmp(t2->name,"DOT")==0){//Exp DOT ID
+       //printf("1");
        if(Exp(t1)==NULL || Exp(t1)->kind != STRUCTURE){
             printf("Error type 13 at Line %d: not structure \n",t1->sline);
             return NULL;
         }
         Type temp1=Exp(t1);
+        //printf("1");
         Type res=serchstructval(temp1,t3->sID);
         if(res==NULL){
             printf("Error type 14 at Line %d: undefined structure val\n",t3->sline);
@@ -454,7 +464,7 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
         // printf("2kind%d\n",temp2->kind);
         if(typeEqual(temp1,temp2)==1) 
         {
-            printf("type eqa line:%d",root->sline);
+            //printf("type eqa line:%d",root->sline);
             return temp1;
             
         }
@@ -464,20 +474,47 @@ Type Exp(Node*root){//若返回NULL，表示不能加减乘除
             return NULL;
         }
     }
-    else 
+    else if(strcmp(t2->name,"PLUS")==0||strcmp(t2->name,"MINUS")==0||strcmp(t2->name,"STAR")==0||strcmp(t2->name,"DIV")==0)
     {
         Type temp1=Exp(t1),temp2=Exp(t3);
+        //printf("%d\n",t1->sline);
         if(typeEqual(temp1,temp2)==1&&temp1->kind==BASIC) return temp1;
-        else printf("Error type 7 at Line %d: Operand type mismatch or operand type mismatch with operator\n",t2->sline);
+        else {
+            printf("Error type 7 at Line %d: Operand type mismatch or operand type mismatch with operator\n",t2->sline);
+        }
+        return NULL;
+    }
+    else if(strcmp(t2->name,"AND")==0||strcmp(t2->name,"OR")==0){
+        Type temp1=Exp(t1),temp2=Exp(t3);
+        //printf("%d\n",t1->sline);
+        if(typeEqual(temp1,temp2)==1&&temp1->kind==BASIC&&temp1->u.basic==0) return temp1;
+        else {
+            printf("Error type 7 at Line %d: Operand type mismatch or operand type mismatch with operator\n",t2->sline);
+        }
+        return NULL;
+    }
+    else if(strcmp(t2->name,"RELOP")==0){
+        Type temp1=Exp(t1),temp2=Exp(t3);
+        Type typenew = (Type)malloc(sizeof(struct Type_));
+        typenew->kind = BASIC;
+        typenew->u.basic = 0;
+        //printf("%d\n",t1->sline);
+        if(typeEqual(temp1,temp2)==1&&temp1->kind==BASIC) return typenew;
+        else {
+            printf("Error type 7 at Line %d: Operand type mismatch or operand type mismatch with operator\n",t2->sline);
+        }
         return NULL;
     }
   }
-  else if(strcmp(t1->name,"MINUS")==0||strcmp(t1->name,"NOT")==0||strcmp(t1->name,"LP")==0)
+  else if(strcmp(t1->name,"MINUS")==0||strcmp(t1->name,"NOT")==0)
   {
     Type temp=Exp(t2);
-    if(temp->kind==BASIC) return temp;
+    if(temp!=NULL && temp->kind==BASIC) return temp;
     else printf("Error type 7 at Line %d: Operand type mismatch or operand type mismatch with operator \n",t2->sline);
     return NULL;
+  }
+  else if(strcmp(t1->name,"LP")==0){
+    return Exp(t2);
   }
 }
 
@@ -536,7 +573,7 @@ Type Specifier(Node* root){
                                 while(now1!=NULL){
                                     if(strcmp(now1->name,newinit->name)==0){
                                         flag0=1;
-                                        printf("Error type 15 at Line %d: Redifned in Structure %s\n",t8->sline,newinit->name);
+                                        printf("Error type 15 at Line %d: Redifned field %s\n",t8->sline,newinit->name);
                                         break;
                                     }
                                     now2=now1;

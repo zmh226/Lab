@@ -91,7 +91,7 @@ void push_stacktable()
     newnode->next_in_bucket = NULL;
     newnode->next_in_same_scope = NULL;
     stack_table[DEPTH]=newnode;
-    
+    //printf("pushDepth:%d\n",DEPTH);
 }
 
 void pop_stacktable()
@@ -105,6 +105,7 @@ void pop_stacktable()
         delete_node(temp);
     }
     DEPTH--;
+    //printf("popDepth:%d\n",DEPTH);
 }
 
 void delete_node(HashNode deleted_node)
@@ -128,10 +129,10 @@ void delete_node(HashNode deleted_node)
 }
 
 int typeEqual(Type t1,Type t2){
-    if(t1==t2)
-       return 1;
     if(t1==NULL||t2==NULL||t1->kind != t2->kind)
        return 0;
+    if(t1==t2)
+       return 1;
     if(t1->kind == BASIC){
         if(t1->u.basic == t2->u.basic)
           return 1;
@@ -152,7 +153,7 @@ int typeEqual(Type t1,Type t2){
             if(temp2->kind != ARRAY)
             break;
         }
-        if(tnum1==tnum2 && temp1->u.basic == temp2->u.basic)
+        if(tnum1==tnum2 && typeEqual(temp1,temp2)==1)
             return 1;
         else return 0;
     }
@@ -233,12 +234,14 @@ int Determin(char* name,Type type){
     }
 
     Type serchvar(char* name){
+        //printf("find\n");
         unsigned val = hash_pjw(name);
         if(hash_table[val] == NULL) return NULL;
         else{
             HashNode temp=hash_table[val];
             while(temp!=NULL){
                 if((strcmp(temp->data->name,name)==0) && temp->data->type->kind != DEFINITION && temp->data->type->kind != FUNCTION){
+                    //printf("%s\n",temp->data->name);
                     return temp->data->type;
                 }
                 temp=temp->next_in_bucket;
