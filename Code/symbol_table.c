@@ -1,5 +1,8 @@
 #include "symbol_table.h"
 
+int DEPTH=-1;
+
+
 void init_hashtable()
 {
     for (int i = 0; i < HASH_SIZE; i++)
@@ -69,7 +72,7 @@ void insert_hashnode(HashNode node_)
 
 }
 void insert0_hashnode(HashNode node_){
-    uunsigned val = hash_pjw(node_->data->name);
+    unsigned val = hash_pjw(node_->data->name);
     if (hash_table[val] == NULL)
         hash_table[val] = node_;
     else
@@ -140,13 +143,13 @@ int typeEqual(Type t1,Type t2){
         while(temp1!=NULL){
             tnum1+=1;
             temp1=temp1->u.array.elem;
-            if(temp1.kind != ARRAY)
+            if(temp1->kind != ARRAY)
             break;
         }
         while(temp2!=NULL){
             tnum2+=1;
             temp2=temp2->u.array.elem;
-            if(temp2.kind != ARRAY)
+            if(temp2->kind != ARRAY)
             break;
         }
         if(tnum1==tnum2 && temp1->u.basic == temp2->u.basic)
@@ -229,13 +232,28 @@ int Determin(char* name,Type type){
         }
     }
 
-    Type serchvar(char*name){
+    Type serchvar(char* name){
         unsigned val = hash_pjw(name);
         if(hash_table[val] == NULL) return NULL;
         else{
             HashNode temp=hash_table[val];
             while(temp!=NULL){
                 if((strcmp(temp->data->name,name)==0) && temp->data->type->kind != DEFINITION && temp->data->type->kind != FUNCTION){
+                    return temp->data->type;
+                }
+                temp=temp->next_in_bucket;
+            }
+        }
+        return NULL;
+    }
+
+    Type serchfunc(char* name){
+        unsigned val = hash_pjw(name);
+        if(hash_table[val] == NULL) return NULL;
+        else{
+            HashNode temp=hash_table[val];
+            while(temp!=NULL){
+                if((strcmp(temp->data->name,name)==0) && temp->data->type->kind == FUNCTION){
                     return temp->data->type;
                 }
                 temp=temp->next_in_bucket;

@@ -1,10 +1,13 @@
-struct{
-	int car;
-};
-int main()
+
+struct Position
 {
-    struct Car car;
-    car.color=0
-	car.weight=1.111
-	i += 1;
+ float x, y;
+};
+
+ int main()
+{
+ int i; 
+ i.x;
 }
+
+

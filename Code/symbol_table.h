@@ -2,13 +2,15 @@
 #define SYMBOL_TABLE
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define HASH_SIZE 0x3fff
 typedef struct Type_* Type;
 typedef struct FieldList_* FieldList;
 typedef struct HashNode_* HashNode;
 HashNode hash_table[HASH_SIZE];
 HashNode stack_table[100];
-int DEPTH = -1;
+extern int DEPTH;
 
 
 struct Type_
@@ -21,7 +23,7 @@ struct Type_
  // 数组类型信息包括元素类型与数组大小构成
    struct { Type elem; int size; } array;
  // 结构体类型信息是一个链表
-   struct{char*name,FieldList structure} structures;//结构体的名字（如果没有即为NULL）以及结构体内部元素的链表
+   struct{ char *name; FieldList structure;} structures;//结构体的名字（如果没有即为NULL）以及结构体内部元素的链表
    FieldList definition;
    struct 
    {
@@ -64,7 +66,8 @@ int typeEqual(Type t1,Type t2);//检查两者类型是否相同,1表示相同
 
 int search_if_exist(char* name,Type type);
 Type searchstruct(char* name);//寻找对应名字的结构体是否被定义，若没有则返回NULL
-Type serchvar(char*name);//查找对应的变量的类型并返回对应类型，若该变量尚未定义，则返回NULL
+Type serchvar(char* name);//查找对应的变量的类型并返回对应类型，若该变量尚未定义，则返回NULL
+Type serchfunc(char* name);//查找对应的func的类型并返回对应类型，若该变量尚未定义，则返回NULL
 Type serchstructval(Type type,char* name);//查找结构体中是否定义了名字为name的域,若有，返回对应域的类型，若没有，返回NULL
 int Determin(char* name,Type type);//判断该变量能不能被定义（当前层），或者判断函数或结构体能不能被定义，若能返回0，不能则返回对应的错误类型序号,该函数只考虑重复定义类型的错误
 

@@ -8,11 +8,11 @@
 void Program_init(Node* root);
 void ExtDefList(Node* root);
 void ExtDef(Node* root);
-void Specifier(Node* root);
-void Compst(Node* root);
+void CompSt(Node* root,Type ret_type);//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！
+void StmtList(Node* root,Type ret_type);
+void Stmt(Node* root,Type ret_type);
 void ExtDecList(Node* root,Type type);
 void FunDec(Node* root,Type type);
-void Compst(Node* root);//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！
 FieldList ParamDec(Node*root);
 Type Specifier(Node* root);//若类型定义中出问题，返回值为NULL，请注意这种情况！
 void DefList(Node* root);

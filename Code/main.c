@@ -1,5 +1,7 @@
 #include "syntax.tab.h"
 #include"node.h"
+#include "symbol_table.h"
+#include "semantic.h"
 #include<stdio.h>
 #include<stdlib.h>
 int syntaxflag;
@@ -32,6 +34,9 @@ int main(int argc, char** argv)
   yyparse(); 
   if(flexflag==0&&syntaxflag==0)
   {
-  printtree(root,0);
+    printtree(root,0);
+    //printf("nnnnn \n");
+    Program_init(root);
   }
-  return 0; }
+  return 0; 
+  }
