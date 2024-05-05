@@ -45,10 +45,16 @@ HashNode init_HashNode_(FieldList data_, int depth_)
 FieldList init_FieldList_(char *name, Type type_)
 {
     FieldList newlist = (FieldList)malloc(sizeof(struct FieldList_));
-    newlist->name = (char*)malloc((strlen(name)+1)*sizeof(char));
+    newlist->inter = NULL;
+    newlist->flag1 = 0;
     newlist->type = type_;
     newlist->tail = NULL;
+    if(name!=NULL){
+    newlist->name = (char*)malloc((strlen(name)+1)*sizeof(char));
     strcpy(newlist->name,name);
+    }
+    else 
+    newlist->name=NULL;
     return newlist;
 }
 
@@ -63,12 +69,12 @@ void insert_hashnode(HashNode node_)
         hash_table[val] = node_;
     }//横插入哈希表
 
-    HashNode temp=stack_table[DEPTH];
-    while(temp->next_in_same_scope!=NULL)
-    {
-        temp=temp->next_in_same_scope;
-    }
-    temp->next_in_same_scope=node_;//纵插入栈
+    //HashNode temp=stack_table[DEPTH];
+    //while(temp->next_in_same_scope!=NULL)
+    //{
+     //   temp=temp->next_in_same_scope;
+    //}
+    //temp->next_in_same_scope=node_;//纵插入栈
 
 }
 void insert0_hashnode(HashNode node_){
@@ -84,6 +90,7 @@ void insert0_hashnode(HashNode node_){
 
 void push_stacktable()
 {
+    //printf("hello");
     DEPTH++;
     HashNode newnode = (HashNode)malloc(sizeof(struct HashNode_));
     newnode->data = NULL;

@@ -815,7 +815,7 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 57 "./lexical.l"
-{yylval.node=createnode(line,1,"RELOP","",0,0);return RELOP;}
+{yylval.node=createnode(line,1,"RELOP",yytext,0,0);return RELOP;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP

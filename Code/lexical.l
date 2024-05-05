@@ -54,7 +54,7 @@ block [ \t\r]
 {SEMI} {yylval.node=createnode(line,1,"SEMI","",0,0);return SEMI;}
 {COMMA} {yylval.node=createnode(line,1,"COMMA","",0,0);return COMMA;}
 {ASSIGNOP} {yylval.node=createnode(line,1,"ASSIGNOP","",0,0);return ASSIGNOP;}
-{RELOP} {yylval.node=createnode(line,1,"RELOP","",0,0);return RELOP;}
+{RELOP} {yylval.node=createnode(line,1,"RELOP",yytext,0,0);return RELOP;}
 {PLUS} {yylval.node=createnode(line,1,"PLUS","",0,0);return PLUS;}
 {MINUS} {yylval.node=createnode(line,1,"MINUS","",0,0);return MINUS;}
 {STAR} {yylval.node=createnode(line,1,"STAR","",0,0);return STAR;}

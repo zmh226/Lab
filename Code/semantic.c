@@ -1,4 +1,5 @@
 #include"semantic.h"
+extern int transflag;
 
 #define DEBUG
 
@@ -8,6 +9,27 @@ void Program_init(Node* root)
     init_stacktable();
     push_stacktable();
     if(root==NULL) return;
+    Type type1 = (Type)malloc(sizeof(struct Type_));
+    Type type2 = (Type)malloc(sizeof(struct Type_));
+    type1->kind=FUNCTION;
+    type2->kind=BASIC;
+    type2->u.basic=0;
+    type1->u.function.return_parameter=type2;
+    type1->u.function.num_of_parameter=0;
+    type1->u.function.parameters=NULL;
+    FieldList func = init_FieldList_("read",type1);
+    HashNode newnode = init_HashNode_(func,0);
+    insert0_hashnode(newnode);
+    Type type3 = (Type)malloc(sizeof(struct Type_));
+    type3->kind=FUNCTION;
+    type3->u.function.return_parameter=type2;
+    type3->u.function.num_of_parameter=1;
+    FieldList param = init_FieldList_(NULL,type2);
+    type3->u.function.parameters=param;
+    FieldList func1 = init_FieldList_("write",type3);
+    HashNode newnode1 = init_HashNode_(func1,0);
+    insert0_hashnode(newnode1);
+    //printf("1");
     ExtDefList(root->child);
 }
 
@@ -83,14 +105,14 @@ void FunDec(Node* root,Type type){//FunDec → ID LP VarList RP | ID LP RP
     if(strcmp(t1->silbing->silbing->name,"RP")==0){
         type1->u.function.num_of_parameter=0;
         type1->u.function.parameters=NULL;
-        push_stacktable();
+        //push_stacktable();
     }
     else if(strcmp(t1->silbing->silbing->name,"VarList")==0){
         type1->u.function.num_of_parameter=0;
         type1->u.function.parameters=NULL;
         Node*t2=t1->silbing->silbing;
         Node*t3=t2->child;//VarList → ParamDec COMMA VarList | ParamDec 
-        push_stacktable();
+        //push_stacktable();
         while(t3!=NULL){
             type1->u.function.num_of_parameter+=1;
             FieldList param = ParamDec(t3);
@@ -135,15 +157,21 @@ FieldList ParamDec(Node*root){//ParamDec → Specifier VarDec
      if(type1 ==NULL)
        return NULL;
     FieldList newlist = VarDec(t2,type1);
+    newlist->flag1=1;
     HashNode newnode=init_HashNode_(newlist,DEPTH);
     insert_hashnode(newnode);
     return newlist;
 }
 
-void CompSt(Node* root,Type ret_type){//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！但语句块分析完毕后退栈应当在Compst中进行 
+void CompSt(Node* root,Type ret_type)
+{//由于函数形参也是函数的局部作用域，因此Compst中将不压栈，请调用时自己看情况是否压栈！但语句块分析完毕后退栈应当在Compst中进行
+    // printf("compst line%d\n",root->sline);
+    // printf("%s\n",root->child->silbing->name);
     Node* t1=root->child->silbing;
     Node* t2=NULL;
     Node* t3=NULL;
+    // if(t1==NULL) printf("empty point t1\n");
+    //printf("%s\n",t1->name);
     if(t1->silbing!=NULL)
     {
         t2=t1->silbing;
@@ -154,7 +182,9 @@ void CompSt(Node* root,Type ret_type){//由于函数形参也是函数的局部�
             if(strcmp(t2->name,"StmtList")==0) StmtList(t2,ret_type);
         }
     }
-    pop_stacktable();  
+    // printf("before pop\n");
+    //printf("DEPTH:%d\n",DEPTH);    
+    //pop_stacktable();  
 }
 
 void StmtList(Node* root,Type ret_type)
@@ -193,7 +223,7 @@ void Stmt(Node* root,Type ret_type)
 
     if(strcmp(t1->name,"CompSt")==0)
     {
-        push_stacktable();
+        //push_stacktable();
         //printf("haha\n");
         CompSt(t1,ret_type);
     }
@@ -518,14 +548,19 @@ Type Specifier(Node* root){
     Type type1 = (Type)malloc(sizeof(struct Type_));
     if(strcmp(t1->name,"TYPE")==0){
         type1->kind=BASIC;
-        if(strcmp(t1->sID,"int")==0)
+        if(strcmp(t1->sID,"int")==0){
            type1->u.basic=0;
-        else if(strcmp(t1->sID,"float")==0)
+           
+           }
+        else if(strcmp(t1->sID,"float")==0){
            type1->u.basic=1;
+           
+        }
         return type1;
     }
     else if(strcmp(t1->name,"StructSpecifier")==0){//StructSpecifier → STRUCT OptTag LC DefList RC | STRUCT Tag 
         type1->kind = STRUCTURE;
+        
         Node*t2=t1->child->silbing;
         if(strcmp(t2->name,"OptTag")==0){
             Node*t3=t2->child;
@@ -668,6 +703,8 @@ FieldList VarDec(Node*root,Type type){// VarDec -> ID| VarDec LB INT RB
     if(strcmp(t1->name,"ID")==0){
         FieldList newfield = (FieldList)(malloc(sizeof(struct FieldList_)));
         newfield->tail=NULL;
+        newfield->inter=NULL;
+        newfield->flag1=0;
         newfield->type=type;
         newfield->name=t1->sID;
         return newfield;
@@ -682,6 +719,10 @@ FieldList VarDec(Node*root,Type type){// VarDec -> ID| VarDec LB INT RB
             temp1->type=typetemp;
         }
         else{
+             if(transflag==1){
+                printf("Cannot translate: Code contains variables of multi-dimensional array type or parameters of array type. \n");
+             }
+             transflag=0;
              Type typetemp1 = (Type)malloc(sizeof(struct Type_));
              typetemp1->kind=ARRAY;
              Type new1 = temp1->type;

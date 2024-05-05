@@ -51,7 +51,6 @@ ExtDef : Specifier ExtDecList SEMI {$$=createnode($1->sline,0,"ExtDef","",0,0);C
 | Specifier FunDec CompSt {$$=createnode($1->sline,0,"ExtDef","",0,0);CTchild($$,$1);CTsilbing($1,$2);CTsilbing($2,$3);}
 | error SEMI { syntaxflag=1;//printf("extdef-error semi ");
 }
-| Specifier FunDec error SEMI {syntaxflag=1;}
 ;
 ExtDecList : VarDec {$$=createnode($1->sline,0,"ExtDecList","",0,0);CTchild($$,$1);}
 | VarDec COMMA ExtDecList{$$=createnode($1->sline,0,"ExtDecList","",0,0);CTchild($$,$1);CTsilbing($1,$2);CTsilbing($2,$3);};

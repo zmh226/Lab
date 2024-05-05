@@ -38,7 +38,9 @@ struct Type_
 struct FieldList_
 {
      char* name; // 域的名字
+     int flag1;//用来判断该变量是否为形参，默认为0，为形参则为1
      Type type; // 域的类型
+     char* inter;//在中间代码中确认的名字
      FieldList tail; // 下一个域
 };
 
@@ -56,6 +58,7 @@ void init_stacktable();
 HashNode init_HashNode_(FieldList data_,int depth_);
 FieldList init_FieldList_(char* name,Type type_);
 
+unsigned hash_pjw(char *name);
 
 void insert_hashnode(HashNode node_);
 void insert0_hashnode(HashNode node_);//将该哈希节点插入到最外层（结构体都是全局的）所以不会被删除，干脆直接插入到哈希表中即可
