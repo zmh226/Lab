@@ -8,7 +8,7 @@ int getSize(Type type){
         return 4;
     }
     else if(type->kind==ARRAY){
-        return type->u.array.size*4;
+        return type->u.array.size*getSize(type->u.array.elem);
     }
     else if(type->kind ==STRUCTURE){
         int size0=0;
@@ -188,7 +188,22 @@ void trans_Dec(Node* root,FILE* file){//Dec → VarDec | VarDec ASSIGNOP Exp
     }
     if(newlist1->type->kind == STRUCTURE || newlist1->type->kind == ARRAY){
         int size1= getSize(newlist1->type);
-        fprintf(file,"Dec %s %d\n",newlist1->inter,size1);
+        fprintf(file,"DEC %s %d\n",newlist1->inter,size1);
+    }
+   }
+   else
+   {
+    Node*n1=t1->child;
+    while(strcmp(n1->name,"ID")!=0){
+        n1=n1->child;
+    }
+    FieldList newlist1=serchvarname(n1->sID);
+    if(newlist1->inter==NULL){
+        newlist1->inter=newvariable();
+    }
+    if(newlist1->type->kind == STRUCTURE || newlist1->type->kind == ARRAY){
+        int size1= getSize(newlist1->type);
+        fprintf(file,"DEC %s %d\n",newlist1->inter,size1);
     }
    }
 }
@@ -234,9 +249,9 @@ void trans_Stmt(Node*root,FILE*file){
      }
    } 
  else if(strcmp(n1->name,"IF")==0){
-    Node*n3=n1->silbing->silbing->silbing->silbing->silbing;
-    Node*n4=n1->silbing->silbing;
-    Node*n5=n4->silbing->silbing;
+    Node*n3=n1->silbing->silbing->silbing->silbing->silbing;//NULL/ELSE
+    Node*n4=n1->silbing->silbing;//EXP
+    Node*n5=n4->silbing->silbing;//STMT after RP
     if(n3==NULL){//| IF LP Exp RP Stmt
        char* label11=newlabel();
        char* label12=newlabel();
@@ -363,7 +378,7 @@ void trans_Exp(Node* root,FILE* file,char* place){
              }
            }
         }
-        else if(strcmp(n2->name,"AND")==0||strcmp(n2->name,"OR")||strcmp(n2->name,"RELOP")){
+        else if(strcmp(n2->name,"AND")==0||strcmp(n2->name,"OR")==0||strcmp(n2->name,"RELOP")==0){
     //| Exp AND Exp
     //| Exp OR Exp 
     //| Exp RELOP Exp 
@@ -428,7 +443,12 @@ void trans_Exp(Node* root,FILE* file,char* place){
         trans_Exp(n3,file,t1);
             char*t2=newtemp();
             char*t3=newtemp();
-           fprintf(file,"%s := %s * #4\n",t2,t1);
+            Type type12 = Exp(n1);
+            int sizenum=4;
+            if(type12!=NULL && type12->kind==ARRAY){
+                sizenum=getSize(type12->u.array.elem);
+            }
+           fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
            fprintf(file,"%s := %s + %s\n",t3,t4,t2);
            if(place!=NULL)
            fprintf(file,"%s := *%s\n",place,t3);
@@ -509,11 +529,11 @@ else if(strcmp(n1->name,"ID")==0){
         }
         else{
                     while(arglist!=NULL){
-                    fprintf(file,"ARG %s\n",arglist->name);
+                    fprintf(file,"ARG %s\n",arglist->inter);
                     arglist = arglist->tail;
                 }
                 if(place==NULL){
-                    fprintf(file,"CALL %s\n",n1->sID);
+                    fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
                 }
                 else{
                     fprintf(file,"%s := CALL %s\n",place,n1->sID);
@@ -528,7 +548,7 @@ else if(strcmp(n1->name,"ID")==0){
         }
         else{
             if(place==NULL)
-               fprintf(file,"CALL %s\n",n1->sID);
+               fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
             else
                fprintf(file,"%s := CALL %s\n",place,n1->sID);
         }
@@ -553,7 +573,11 @@ else if(strcmp(n1->name,"FLOAT")==0){
 void transaddr_Exp(Node* root,FILE*file,char* place){
     Node* n1=root->child;
     Node* n2 =n1 ->silbing;
-    Node* n3 = n2->silbing;
+    Node* n3 = NULL;
+    if(n2!=NULL)
+    {
+        n3 = n2->silbing;
+    }
     if(strcmp(n1->name,"ID")==0){
         FieldList newlist1=serchvarname(n1->sID);
         if(newlist1->inter==NULL)
@@ -573,7 +597,12 @@ void transaddr_Exp(Node* root,FILE*file,char* place){
         char*t1=newtemp();
         trans_Exp(n3,file,t1);
             char*t2=newtemp();
-           fprintf(file,"%s := %s * #4\n",t2,t1);
+            Type type12 = Exp(n1);
+            int sizenum=4;
+            if(type12!=NULL && type12->kind==ARRAY){
+                sizenum=getSize(type12->u.array.elem);
+            }
+           fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
            if(place!=NULL)
            fprintf(file,"%s := %s + %s\n",place,t4,t2);
       }
@@ -604,6 +633,10 @@ void trans_Args(Node* root,FILE* file,FieldList* arg){
 //| Exp 
    Node*n1=root->child;
     char* t1 = newtemp();
+    Type type12 = Exp(n1);
+    if(type12!=NULL && (type12->kind==ARRAY || type12->kind==STRUCTURE))
+    transaddr_Exp(n1,file,t1);
+    else
     trans_Exp(n1,file,t1);
     FieldList arglist = *arg;
     if(arglist == NULL){

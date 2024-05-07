@@ -42,7 +42,7 @@ int main(int argc, char** argv)
   yyparse(); 
   if(flexflag==0&&syntaxflag==0)
   {
-    //printtree(root,0);
+    printtree(root,0);
     Program_init(root);
     if(transflag==1){
      trans_Program_init(root,f2);
