@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #define HASH_SIZE 0x3fff
 typedef struct Type_* Type;
 typedef struct FieldList_* FieldList;

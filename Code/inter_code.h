@@ -2,9 +2,12 @@
 #define INTER_CODE
 
 #include"semantic.h"
+#include"object_code.h"
 extern int num_temp ;
 extern int num_label ;
 extern int num_variable;
+
+
 char*newtemp();
 char*newlabel();
 char*newvariable();

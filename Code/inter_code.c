@@ -69,6 +69,9 @@ FieldList serchvarname(char* name){
     }
 void trans_Program_init(Node* root,FILE*file){
     //Program → ExtDefList
+    init_obj(file);
+    init_registers();
+    init_varlist();
     trans_ExtDefList(root->child,file);
 }
 
@@ -110,13 +113,20 @@ void trans_FunDec(Node* root,FILE*file){
 //| ID LP RP 
 //return;
    Node*n1=root->child;
-   fprintf(file,"FUNCTION %s :\n",n1->sID);
+
+   //fprintf(file,"FUNCTION %s :\n",n1->sID);
+   fprintf(file,"%s:\n",n1->sID);
+
+
    Type type1=serchfunc(n1->sID);
    int num1=type1->u.function.num_of_parameter;
    FieldList param1=type1->u.function.parameters;
+   int num2=num1;
    while(num1>0){
     param1->inter=newvariable();
-    fprintf(file,"PARAM %s\n",param1->inter);
+    //fprintf(file,"PARAM %s\n",param1->inter);
+    char* r1=deal_value(param1->inter);
+    //fprintf(file,"    ")
     param1=param1->tail;
     num1--;
    }
@@ -236,16 +246,39 @@ void trans_Stmt(Node*root,FILE*file){
    else if(strcmp(n1->name,"RETURN")==0){
      Node*n2=n1->silbing;
      if(strcmp(n2->child->name,"INT")==0){
-        fprintf(file,"RETURN #%d\n",n2->child->snum);
+        //fprintf(file,"RETURN #%d\n",n2->child->snum);
+        if(n2->child->snum==0)
+        {
+            fprintf(file,"    move $v0,$0\n");
+            fprintf(file,"    jr $ra");
+        }
+        else
+        {
+            //char* t1=newtemp();
+            //char* r1=deal_value(t1);
+            fprintf(file,"    li $v0,%d\n",n2->child->snum);
+            //fprintf(file,"    move $v0,%s\n",r1);
+            fprintf(file,"    jr $ra");
+        }
+        
      }
      else if(strcmp(n2->child->name,"ID")==0 && n2->child->silbing==NULL){
         FieldList newlist1 = serchvarname(n2->child->sID);
-        fprintf(file,"RETURN %s\n",newlist1->inter);
+
+        //fprintf(file,"RETURN %s\n",newlist1->inter);
+        char* r1=deal_value(newlist1->inter,file);
+        fprintf(file,"    move $v0,%s\n",r1);
+        free_reg(r1);
+        fprintf(file,"    jr $ra");
      }
      else{
      char*t1=newtemp();
      trans_Exp(n1->silbing,file,t1);
-     fprintf(file,"RETURN %s\n",t1);
+     //fprintf(file,"RETURN %s\n",t1);
+     char* r1=deal_value(t1,file);
+     fprintf(file,"    move $v0,%s\n",r1);
+     free_reg(t1);
+     fprintf(file,"    jr $ra");
      }
    } 
  else if(strcmp(n1->name,"IF")==0){
@@ -256,21 +289,35 @@ void trans_Stmt(Node*root,FILE*file){
        char* label11=newlabel();
        char* label12=newlabel();
        trans_Cond(n4,label11,label12,file);
-       fprintf(file,"LABEL %s :\n",label11);
+
+       //fprintf(file,"LABEL %s :\n",label11);
+       fprintf(file,"%s:\n",label11);
+
        trans_Stmt(n5,file);
-       fprintf(file,"LABEL %s :\n",label12);
+
+       //fprintf(file,"LABEL %s :\n",label12);
+       fprintf(file,"%s:\n",label12);
+
     }
     else{//| IF LP Exp RP Stmt ELSE Stmt 
        char* label11=newlabel();
        char* label12=newlabel();
        char* label13=newlabel();
        trans_Cond(n4,label11,label12,file);
-       fprintf(file,"LABEL %s :\n",label11);
+       //fprintf(file,"LABEL %s :\n",label11);
+       fprintf(file,"%s:\n",label11);
+
        trans_Stmt(n5,file);
-       fprintf(file,"GOTO %s\n",label13);
-       fprintf(file,"LABEL %s :\n",label12);
+
+       //fprintf(file,"GOTO %s\n",label13);
+       fprintf(file,"    j %s\n",label13);
+
+       //fprintf(file,"LABEL %s :\n",label12);
+       fprintf(file,"%s:\n",label12);
+
        trans_Stmt(n3->silbing,file);
-       fprintf(file,"LABEL %s :\n",label13);
+       //fprintf(file,"LABEL %s :\n",label13);
+       fprintf(file,"%s:\n",label13);
     }
  }
  else if(strcmp(n1->name,"WHILE")==0){
@@ -280,12 +327,22 @@ void trans_Stmt(Node*root,FILE*file){
     char* label11=newlabel();
     char* label12=newlabel();
     char* label13=newlabel();
-    fprintf(file,"LABEL %s :\n",label11);
+
+    //fprintf(file,"LABEL %s :\n",label11);
+    fprintf(file,"%s:\n",label11);
+
     trans_Cond(n8,label12,label13,file);
-    fprintf(file,"LABEL %s :\n",label12);
+
+    //fprintf(file,"LABEL %s :\n",label12);
+    fprintf(file,"%s:\n",label12);
+
     trans_Stmt(n9,file);
-    fprintf(file,"GOTO %s\n",label11);
-    fprintf(file,"LABEL %s :\n",label13);
+
+    //fprintf(file,"GOTO %s\n",label11);
+    fprintf(file,"    j %s\n",label11);
+
+    //fprintf(file,"LABEL %s :\n",label13);
+    fprintf(file,"%s:\n",label13);
  }
 }
 
@@ -304,8 +361,42 @@ void trans_Cond(Node*root,char*label_true,char*label_false,FILE* file){
         char*t2=newtemp();
         trans_Exp(n1,file,t1);
         trans_Exp(n3,file,t2);
-        fprintf(file,"IF %s %s %s GOTO %s\n",t1,n2->sID,t2,label_true);
-        fprintf(file,"GOTO %s\n",label_false);
+
+        //fprintf(file,"IF %s %s %s GOTO %s\n",t1,n2->sID,t2,label_true);
+        {   char* v1=deal_value(t1,file);
+            char* v2=deal_value(t2,file);
+
+            if(strcmp(n2->sID,"==")==0)
+            {
+                fprintf(file,"    beq %s,%s,%s\n",v1,v2,label_true);
+            }
+            if(strcmp(n2->sID,"!=")==0)
+            {
+                fprintf(file,"    bne %s,%s,%s\n",v1,v2,label_true);
+            }
+            if(strcmp(n2->sID,">")==0)
+            {
+                fprintf(file,"    bgt %s,%s,%s\n",v1,v2,label_true);
+            }
+            if(strcmp(n2->sID,"<")==0)
+            {
+                fprintf(file,"    blt %s,%s,%s\n",v1,v2,label_true);
+            }
+            if(strcmp(n2->sID,">=")==0)
+            {
+                fprintf(file,"    bge %s,%s,%s\n",v1,v2,label_true);
+            }
+            if(strcmp(n2->sID,"<=")==0)
+            {
+                fprintf(file,"    ble %s,%s,%s\n",v1,v2,label_true);
+            }
+            free_reg(v1);free_reg(v2);
+
+            
+        }
+
+        //fprintf(file,"GOTO %s\n",label_false);
+        fprintf(file,"    j %s\n",label_false);
     }
     //| NOT Exp
     else if(strcmp(n1->name,"NOT")==0){
@@ -315,21 +406,36 @@ void trans_Cond(Node*root,char*label_true,char*label_false,FILE* file){
     else if(n2!=NULL && strcmp(n2->name,"AND")==0){
         char*label11=newlabel();
         trans_Cond(n1,label11,label_false,file);
-        fprintf(file,"LABEL %s :\n",label11);
+
+        //fprintf(file,"LABEL %s :\n",label11);
+        fprintf(file,"%s:\n",label11);
+
         trans_Cond(n3,label_true,label_false,file);
     }
     //Exp OR Exp 
     else if(n2!=NULL && strcmp(n2->name,"OR")==0){
         char*label11=newlabel();
         trans_Cond(n1,label_true,label11,file);
-        fprintf(file,"LABEL %s :\n",label11);
+
+        //fprintf(file,"LABEL %s :\n",label11);
+        fprintf(file,"%s:\n",label11);
+
+
         trans_Cond(n3,label_true,label_false,file);
     }
     else{
         char*t1=newtemp();
         trans_Exp(root,file,t1);
-        fprintf(file,"IF %s != #0 GOTO %s\n",t1,label_true);
-        fprintf(file,"GOTO %s\n",label_false);
+        //fprintf(file,"IF %s != #0 GOTO %s\n",t1,label_true);
+        {
+            char* v1=deal_value(t1,file);
+            fprintf(file,"bne %s,$0,%s",t1,label_true);
+            free_reg(v1);
+        }
+
+        //fprintf(file,"GOTO %s\n",label_false);
+        fprintf(file,"    j %s\n",label_false);
+
     }
 }
 
@@ -362,9 +468,16 @@ void trans_Exp(Node* root,FILE* file,char* place){
              char*t1=newtemp();
              trans_Exp(n3,file,t1);
              //return;
-             fprintf(file,"%s  :=  %s\n",newlist1->inter,t1);
+             //fprintf(file,"%s  :=  %s\n",newlist1->inter,t1);
+            //  char*r1=deal_value(t1);
+            //  char*r2=deal_value(newlist1->inter);
+            //  fprintf(file,"    move %s,%s\n",r2,r1);
+             assign_v(newlist1->inter,t1,file);
+
              if(place!=NULL){
-                fprintf(file,"%s  :=  %s\n",place,newlist1->inter);
+                //fprintf(file,"%s  :=  %s\n",place,newlist1->inter);
+                //fprintf(file,"    move %s,%s\n",r1,r2);
+                assign_v(t1,newlist1->inter,file);
              }
            }
            else{
@@ -372,9 +485,18 @@ void trans_Exp(Node* root,FILE* file,char* place){
             char*t2=newtemp();
             transaddr_Exp(n1,file,t1);
             trans_Exp(n3,file,t2);
-            fprintf(file,"*%s := %s\n",t1,t2);
+
+            //fprintf(file,"*%s := %s\n",t1,t2);
+            char*r1=deal_value(t1);
+            char*r2=deal_value(t2);
+            fprintf(file,"    sw %s,0(%s)\n",r1,r2);
+            assign_v(t1,t2);
+
             if(place!=NULL){
-                fprintf(file,"%s  :=  *%s\n",place,t1);
+                //fprintf(file,"%s  :=  *%s\n",place,t1);
+                char* r3=deal_value(place);
+                fprintf(file,"    lw %s,0(%s)\n",r3,r1);
+                assign_v(place,t1);
              }
            }
         }
@@ -386,11 +508,27 @@ void trans_Exp(Node* root,FILE* file,char* place){
            char*label11=newlabel();
            char*label12=newlabel();
            if(place!=NULL){
-            fprintf(file,"%s := #0\n",place);
+            //fprintf(file,"%s := #0\n",place);
+            // char* r1=deal_value(place);
+            // fprintf(file,"    li %s,0\n",r1);
+            assign_i(place,0,file);
+
+
+
             trans_Cond(root,label11,label12,file);
-            fprintf(file,"LABEL %s :\n",label11);
-            fprintf(file,"%s := #1\n",place);
-            fprintf(file,"LABEL %s :\n",label12);
+
+            //fprintf(file,"LABEL %s :\n",label11);
+            fprintf(file,"%s:\n",label11);
+
+            //fprintf(file,"%s := #1\n",place);
+            //fprintf(file,"    li %s,1\n",r1);
+            assign_i(place,1,file);
+
+
+
+            //fprintf(file,"LABEL %s :\n",label12);
+            fprintf(file,"%s:\n",label12);
+
            }
         }
         else if(strcmp(n2->name,"PLUS")==0){
@@ -400,7 +538,17 @@ void trans_Exp(Node* root,FILE* file,char* place){
             trans_Exp(n1,file,t1);
             trans_Exp(n3,file,t2);
             if(place!=NULL)
-            fprintf(file,"%s := %s + %s\n",place,t1,t2);
+            {
+                //fprintf(file,"%s := %s + %s\n",place,t1,t2);
+                // char* rp=deal_value(place);
+                // char* r1=deal_value(t1);
+                // char* r2=deal_value(t2);
+                // fprintf(file,"    add %s,%s,%s\n",rp,r1,r2);
+                operation2(place,t1,t2,'+',file);
+
+
+            }
+            
         }
 
 //| Exp PLUS Exp 
@@ -411,7 +559,14 @@ void trans_Exp(Node* root,FILE* file,char* place){
             trans_Exp(n1,file,t1);
             trans_Exp(n3,file,t2);
             if(place!=NULL)
-            fprintf(file,"%s := %s - %s\n",place,t1,t2);
+            {
+                //fprintf(file,"%s := %s - %s\n",place,t1,t2);
+                // char* rp=deal_value(place);
+                // char* r1=deal_value(t1);
+                // char* r2=deal_value(t2);
+                // fprintf(file,"    sub %s,%s,%s\n",rp,r1,r2);
+                operation2(place,t1,t2,'-',file);
+            }
         }
 //| Exp MINUS Exp 
        else if(strcmp(n2->name,"STAR")==0){
@@ -421,7 +576,14 @@ void trans_Exp(Node* root,FILE* file,char* place){
             trans_Exp(n1,file,t1);
             trans_Exp(n3,file,t2);
             if(place!=NULL)
-            fprintf(file,"%s := %s * %s\n",place,t1,t2);
+            {
+                //fprintf(file,"%s := %s * %s\n",place,t1,t2);
+                // char* rp=deal_value(place);
+                // char* r1=deal_value(t1);
+                // char* r2=deal_value(t2);
+                // fprintf(file,"    mul %s,%s,%s\n",rp,r1,r2);
+                operation2(place,t1,t2,'*',file);
+            }
         }
 //| Exp STAR Exp 
       else if(strcmp(n2->name,"DIV")==0){
@@ -431,7 +593,16 @@ void trans_Exp(Node* root,FILE* file,char* place){
             trans_Exp(n1,file,t1);
             trans_Exp(n3,file,t2);
             if(place!=NULL)
-            fprintf(file,"%s := %s / %s\n",place,t1,t2);
+            {
+                //fprintf(file,"%s := %s / %s\n",place,t1,t2);
+                // char* rp=deal_value(place);
+                // char* r1=deal_value(t1);
+                // char* r2=deal_value(t2);
+                // fprintf(file,"    div %s,%s\n",r1,r2);
+                // fprintf(file,"    mflo %s\n",rp);
+                operation2(place,t1,t2,'/',file);
+            
+            }
         }
 //| Exp DIV Exp 
 //| Exp LB Exp RB 
@@ -454,7 +625,7 @@ void trans_Exp(Node* root,FILE* file,char* place){
            fprintf(file,"%s := *%s\n",place,t3);
       }
       else if(strcmp(n2->name,"DOT")==0){
-//| Exp DOT ID 
+//| Exp DOT ID 样例中不会出现结构体类型，不管
 //return;
         char*t1=newtemp();
         transaddr_Exp(n1,file,t1);
@@ -483,11 +654,24 @@ void trans_Exp(Node* root,FILE* file,char* place){
        char*label11=newlabel();
        char*label12=newlabel();
            if(place!=NULL){
-            fprintf(file,"%s := #0\n",place);
+            //fprintf(file,"%s := #0\n",place);
+            // char* r1=deal_value(place);
+            // fprintf(file,"    li %s,0\n",r1);
+            assign_i(place,0,file);
+
+
             trans_Cond(root,label11,label12,file);
-            fprintf(file,"LABEL %s :\n",label11);
-            fprintf(file,"%s := #1\n",place);
-            fprintf(file,"LABEL %s :\n",label12);
+
+            //fprintf(file,"LABEL %s :\n",label11);
+            fprintf(file,"%s:\n",label11);
+
+            //fprintf(file,"%s := #1\n",place);
+            // char* r2=deal_value(place);
+            // fprintf(file,"    li %s,1\n",r2);
+            assign_i(place,1,file);
+
+            //fprintf(file,"LABEL %s :\n",label12);
+            fprintf(file,"%s:\n",label12);
            }
     }
 //| LP Exp RP 
@@ -501,7 +685,11 @@ else if(strcmp(n1->name,"MINUS")==0){
     char*t1=newtemp();
     trans_Exp(n2,file,t1);
     if(place!=NULL){
-        fprintf(file,"%s := #0 - %s\n",place,t1);
+        //fprintf(file,"%s := #0 - %s\n",place,t1);
+        // char *rp=deal_value(place);
+        // char *r1=deal_value(t1);
+        // fprintf(file,"    sub %s,$0,%s\n",place,t1);
+        operation1(place,t1,file);
     }
 }
 else if(strcmp(n1->name,"ID")==0){
@@ -512,7 +700,12 @@ else if(strcmp(n1->name,"ID")==0){
         if(newlist1->inter==NULL)
            newlist1->inter=newvariable();
         if(place!=NULL){
-            fprintf(file,"%s := %s\n",place,newlist1->inter);
+            //fprintf(file,"%s := %s\n",place,newlist1->inter);
+            // char* r1=deal_value(place);
+            // char* r2=deal_value(newlist1->inter);
+            // fprintf(file,"    move %s,%s\n",r1,r2);
+            assign_v(place,newlist1->inter,file);
+
         }
     }
 //| ID LP Args RP 
@@ -522,21 +715,69 @@ else if(strcmp(n1->name,"ID")==0){
         FieldList* arg = &arglist;
         trans_Args(n3,file,arg);
         if(strcmp(n1->sID,"write")==0){
-            fprintf(file,"WRITE %s\n",arglist->inter);
-            if(place!=NULL){
-                fprintf(file,"%s := #0\n",place);
-            }
+            //fprintf(file,"WRITE %s\n",arglist->inter);
+            // if(place!=NULL){
+            //     fprintf(file,"%s := #0\n",place);
+            // }
+            char* v1=deal_value(arglist->inter,file);
+            // reallocate("$v0",file);
+            // reallocate("$v1",file);
+            // reallocate("$a0",file);
+            // reallocate("$a1",file);
+            // reallocate("$a2",file);
+            // reallocate("$a3",file);
+            fprintf(file,"    move $a0,%s\n",v1);
+            free_reg(v1);
+            fprintf(file,"    addi $sp, $sp, -4\n");
+            fprintf(file,"    sw $ra, 0($sp)\n");
+            fprintf(file,"    jal write\n");
+            fprintf(file,"    lw $ra, 0($sp)\n");
+            fprintf(file,"    addi $sp, $sp, 4\n");
         }
         else{
-                    while(arglist!=NULL){
-                    fprintf(file,"ARG %s\n",arglist->inter);
-                    arglist = arglist->tail;
-                }
+            int num=0;
+                    while(arglist!=NULL)
+                    {
+                        num++;
+                        arglist = arglist->tail;
+                    }
+                    if(num>4)
+                    fprintf(file,"    subu $sp, $sp,%d\n",4*num-16);
+                    int i=0;
+                    while(arglist!=NULL)
+                    {
+                        //fprintf(file,"ARG %s\n",arglist->inter);
+                        char* v1=deal_value(arglist->inter,file);
+                        if(i<=3) fprintf(file,"    move $a%d,%s\n",i,v1);
+                        else
+                        {
+                            fprintf(file,"    sw %s,%d($sp)\n",v1,4*(i-4));
+                        }
+                        free_reg(v1);
+                        arglist = arglist->tail;
+                        i++;
+                    }
+                    fprintf(file,"    jal %s\n",n1->sID);
+
+                    if(num>4) fprintf(file,"    addi $sp, $sp,%d\n",4*num-16);
+                    // fprintf(file,"    addi $sp, $sp, -4\n");
+                    // fprintf(file,"    sw $ra, 0($sp)\n");
+                    // fprintf(file,"    jal write\n");
+                    // fprintf(file,"    lw $ra, 0($sp)\n");
                 if(place==NULL){
-                    fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
+
+                    //fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
+                    char* t1=newtemp();
+                    // char* r1=deal_value(t1,file);
+                    // fprintf(file,"    move %s,$v0\n",r1);
+                    assign_from_const_reg(t1,"$v0",file);
+
                 }
                 else{
-                    fprintf(file,"%s := CALL %s\n",place,n1->sID);
+                    //fprintf(file,"%s := CALL %s\n",place,n1->sID);
+                    // char* r1=deal_value(place);
+                    // fprintf(file,"    move %s,$v0\n",r1);
+                    assign_from_const_reg(place,"$v0",file);
                 }
         }
     }
@@ -544,13 +785,35 @@ else if(strcmp(n1->name,"ID")==0){
     else{
         if(strcmp(n1->sID,"read")==0){
             if(place!=NULL)
-              fprintf(file,"READ %s\n",place);
+            {
+              //fprintf(file,"READ %s\n",place);
+              //char* v1=deal_value(place,file);
+            //   reallocate("$v0",file);
+            //   reallocate("$v1",file);
+            //   reallocate("$a0",file);
+            //   reallocate("$a1",file);
+            //   reallocate("$a2",file);
+            //   reallocate("$a3",file);
+              fprintf(file,"    addi $sp, $sp, -4\n");
+              fprintf(file,"    sw $ra, 0($sp)\n");
+              fprintf(file,"    jal read\n");
+              fprintf(file,"    lw $ra, 0($sp)\n");
+              fprintf(file,"    addi $sp, $sp, 4\n");
+              //fprintf(file,"    move %s,$v0\n",v1);
+              assign_from_const_reg(place,"$v0",file);
+            }
         }
         else{
+            fprintf(file,"    addi $sp, $sp, -4\n");
+            fprintf(file,"    sw $ra, 0($sp)\n");
+            fprintf(file,"    jal %s\n",n1->sID);
+            fprintf(file,"    lw $ra, 0($sp)\n");
+            fprintf(file,"    addi $sp, $sp, 4\n");
             if(place==NULL)
-               fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
+               //fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
+               ;
             else
-               fprintf(file,"%s := CALL %s\n",place,n1->sID);
+               assign_from_const_reg(place,"$v0",file);
         }
     } 
 }
@@ -558,14 +821,18 @@ else if(strcmp(n1->name,"ID")==0){
 else if(strcmp(n1->name,"INT")==0){
     //return;
     if(place!=NULL){
-            fprintf(file,"%s := #%d\n",place,n1->snum);
+            //fprintf(file,"%s := #%d\n",place,n1->snum);
+            // char* r1=deal_value(place);
+            // fprintf(file,"    li %s,%d\n",r1,n1->snum);
+            assign_i(place,n1->snum,file);
+
         }
 }
 //| FLOAT 
 else if(strcmp(n1->name,"FLOAT")==0){
     //return;
     if(place!=NULL){
-            fprintf(file,"%s := #%f\n",place,n1->snum1);
+            fprintf(file,"%s := #%f\n",place,n1->snum1);//样例中不会出现浮点数，不管
         }
 }
 }
@@ -607,7 +874,7 @@ void transaddr_Exp(Node* root,FILE*file,char* place){
            fprintf(file,"%s := %s + %s\n",place,t4,t2);
       }
       else if(strcmp(n2->name,"DOT")==0){
-//| Exp DOT ID 
+//| Exp DOT ID 样例中不会出现结构体类型，不管
         char*t1=newtemp();
         transaddr_Exp(n1,file,t1);
         Type type1=Exp(n1);
