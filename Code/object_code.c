@@ -5,6 +5,7 @@ char*reg_name[32]={
     "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3", "$s4", "$s5",
     "$s6", "$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
 };
+int OFFSET=0;
 void init_obj(FILE *file)
 {
     fprintf(file, ".data\n");
@@ -77,6 +78,7 @@ void init_varlist()
     varlist->head=(Varible)malloc(sizeof(Varible));
     varlist->tail=(Varible)malloc(sizeof(Varible));
     varlist->head = varlist->tail = NULL;
+    varlist->offset = 8;
 }
 
 void insert_var(Varible v)
@@ -88,7 +90,7 @@ void insert_var(Varible v)
     else
     {
         varlist->tail->next = v;
-        v = varlist->tail;
+        varlist->tail = v;
     }
 }
 
@@ -96,8 +98,14 @@ Varible search_var(char *name)
 {
     if(varlist->head!=NULL)
     {
+        if(strcmp(name,"t27")==0)
+        {
+            int a=0;
+            ;
+        }
     Varible temp = varlist->head;
-    while (temp != NULL && strcmp(temp->vname, name) != 0)
+    while (temp != NULL
+    && strcmp(temp->vname, name) != 0)
     {
         temp = temp->next;
     }
@@ -113,11 +121,46 @@ Varible new_var(char *name)
 {
     Varible newvar = (Varible)malloc(sizeof(Varible));
     newvar->vname=(char*)malloc(sizeof((char*)(strlen(name)+1)));
-    strcpy(newvar->vname, name);   
-    OFFSET=OFFSET+4;
-    newvar->offset=OFFSET;
+    strcpy(newvar->vname, name);
+    varlist->offset+=4;   
+    newvar->offset=varlist->offset;
+    newvar->next=NULL;
     insert_var(newvar);
     return newvar;
+}
+
+Varible new_arrayvar(char* name,int size)
+{
+    Varible newvar = (Varible)malloc(sizeof(Varible));
+    newvar->vname=(char*)malloc(sizeof((char*)(strlen(name)+1)));
+    strcpy(newvar->vname, name);
+    varlist->offset+=size;   
+    newvar->offset=varlist->offset;
+    newvar->next=NULL;
+    insert_var(newvar);
+    return newvar;
+}
+
+void clear_varlist()
+{
+    if(varlist->offset>12)
+    {
+    Varible temp=varlist->head->next;
+    free(varlist->head);
+    while(temp!=varlist->tail)
+    {
+        Varible temp1=temp;
+        temp=temp1->next;
+        free(temp1);
+    }
+    free(temp);
+    
+    }
+    else if(varlist->offset==12)
+    {
+        free(varlist->head);
+    }
+    init_varlist();
 }
 
 char *allocate(char *name)
@@ -269,7 +312,7 @@ void assign_v(char *name1, char *name2,FILE* file)
     //Varible var2=search_var(name2);
     if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
         var1=new_var(name1);
-        fprintf(file,"    subi $sp,4\n");    
+        fprintf(file,"    subu $sp,$sp,4\n");    
     }
     fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
     //由于name2对应的变量值没变，且事先一定存在，所以不用写回
@@ -298,7 +341,7 @@ void assign_i(char *name1, int value,FILE* file)
     Varible var1=search_var(name1);
     if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
         var1=new_var(name1);
-        fprintf(file,"    subi $sp,4\n");    
+        fprintf(file,"    subu $sp,$sp,4\n");    
     }
     fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
     //由于name2对应的变量值没变，且事先一定存在，所以不用写回
@@ -308,11 +351,11 @@ void assign_i(char *name1, int value,FILE* file)
 void assign_from_const_reg(char* name1,char* const_reg_name,FILE *file)
 {
     char* r1=deal_value(name1,file);
-    fprintf(file,"    move %s,%s",r1,const_reg_name);
+    fprintf(file,"    move %s,%s\n",r1,const_reg_name);
     Varible var1=search_var(name1);
     if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
         var1=new_var(name1);
-        fprintf(file,"    subi $sp,4\n");    
+        fprintf(file,"    subu $sp,$sp,4\n");    
     }
     fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
     //由于name2对应的变量值没变，且事先一定存在，所以不用写回
@@ -376,7 +419,7 @@ void operation2(char*name1,char*name2,char*name3,char op,FILE *file)
     Varible var1=search_var(name1);
     if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
         var1=new_var(name1);
-        fprintf(file,"    subi $sp,4\n");    
+        fprintf(file,"    subu $sp,$sp,4\n");    
     }
     fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
     free_reg(r1);free_reg(r2);free_reg(r3);
@@ -421,12 +464,38 @@ void operation1(char* name1,char*name2,FILE* file)
     //Varible var2=search_var(name2);
     if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
         var1=new_var(name1);
-        fprintf(file,"    subi $sp,4\n");    
+        fprintf(file,"    subu $sp,$sp,4\n");    
     }
     fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
     //由于name2对应的变量值没变，且事先一定存在，所以不用写回
     free_reg(r1);
     free_reg(r2);//清理r1,r2寄存器的值，以便后续使用
+}
+
+void assign_addr(char * name1,char *name2,int opt,FILE* file)
+{
+    char* r1=deal_value(name1,file);
+    char* r2=deal_value(name2,file);
+    if(opt==1)
+    {
+        fprintf(file,"    sw %s,0(%s)\n",r1,r2);
+    }
+    else if(opt==2)
+    {
+        fprintf(file,"    lw %s,0(%s)\n",r1,r2);
+    }
+    Varible var1=search_var(name1);
+    //Varible var2=search_var(name2);
+    if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
+        var1=new_var(name1);
+        fprintf(file,"    subu $sp,$sp,4\n");    
+    }
+    fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
+    //由于name2对应的变量值没变，且事先一定存在，所以不用写回
+    free_reg(r1);
+    free_reg(r2);//清理r1,r2寄存器的值，以便后续使用
+
+
 }
 
 void reallocate(char* register_name,FILE* file)
@@ -448,4 +517,28 @@ void reallocate(char* register_name,FILE* file)
         }
     }
     
+}
+
+void enter_func(FILE * file)//被调用者进入，在紧接着“func"标签之处使用
+{
+    fprintf(file,"    subu $sp,$sp,8\n");
+    // char* v1=deal_value("off",file);
+    // fprintf(file,"    li %s,%d\n",v1,OFFSET);
+    // OFFSET=12;
+    // fprintf(file,"    sw %s,8($sp)\n",v1);
+    // free_reg(v1);
+    fprintf(file,"    sw $ra,4($sp)\n");
+    fprintf(file,"    sw $fp,0($sp)\n");
+    fprintf(file,"    addi $fp,$sp,8\n");
+
+}
+
+void exit_func(FILE* file)//被调用者退出，在识别到RETURN的时候使用
+{
+    // char* v1=deal_value("off",file);
+    // fprintf(file,"    lw %s,-4($fp)\n",v1);
+    fprintf(file,"    lw $ra,-4($fp)\n");
+    fprintf(file,"    lw $fp,-8($fp)\n");
+    fprintf(file,"    addi $sp,$sp,8\n");
+    //fprintf(file,"    jr $ra\n");
 }

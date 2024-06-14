@@ -1,4 +1,3 @@
-int p;
 int fact(int n)
 {
 if (n == 1)
@@ -9,7 +8,6 @@ return (n * fact(n - 1));
 int main()
 {
 int m, result;
-p=1;
 m = read();
 if (m > 1)
 result = fact(m);

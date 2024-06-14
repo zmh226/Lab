@@ -116,16 +116,34 @@ void trans_FunDec(Node* root,FILE*file){
 
    //fprintf(file,"FUNCTION %s :\n",n1->sID);
    fprintf(file,"%s:\n",n1->sID);
+   enter_func(file);
+   clear_varlist();
 
 
    Type type1=serchfunc(n1->sID);
    int num1=type1->u.function.num_of_parameter;
    FieldList param1=type1->u.function.parameters;
-   int num2=num1;
+   int num2=0;
    while(num1>0){
     param1->inter=newvariable();
     //fprintf(file,"PARAM %s\n",param1->inter);
-    char* r1=deal_value(param1->inter);
+    char* r1=deal_value(param1->inter,file);
+    switch (num2)
+    {
+    case 0:{assign_from_const_reg(param1->inter,"$a0",file);break;}
+    case 1:{assign_from_const_reg(param1->inter,"$a1",file);break;}
+    case 2:{assign_from_const_reg(param1->inter,"$a2",file);break;}
+    case 3:{assign_from_const_reg(param1->inter,"$a3",file);break;}
+    
+    default:
+    {
+        fprintf(file,"    sw %s,%d($fp)\n",r1,(num2-4)*4);
+        Varible var1=new_var(param1->inter);
+        fprintf(file,"    lw %s,-%d($fp)\n",r1,var1->offset);
+        break;
+    }       
+    }
+    num2++;
     //fprintf(file,"    ")
     param1=param1->tail;
     num1--;
@@ -213,7 +231,8 @@ void trans_Dec(Node* root,FILE* file){//Dec → VarDec | VarDec ASSIGNOP Exp
     }
     if(newlist1->type->kind == STRUCTURE || newlist1->type->kind == ARRAY){
         int size1= getSize(newlist1->type);
-        fprintf(file,"DEC %s %d\n",newlist1->inter,size1);
+        //fprintf(file,"DEC %s %d\n",newlist1->inter,size1);
+        new_arrayvar(newlist1->inter,size1);
     }
    }
 }
@@ -244,13 +263,15 @@ void trans_Stmt(Node*root,FILE*file){
     }
 //| RETURN Exp SEMI 
    else if(strcmp(n1->name,"RETURN")==0){
+    //exit_func(file);
      Node*n2=n1->silbing;
      if(strcmp(n2->child->name,"INT")==0){
+        exit_func(file);
         //fprintf(file,"RETURN #%d\n",n2->child->snum);
         if(n2->child->snum==0)
         {
             fprintf(file,"    move $v0,$0\n");
-            fprintf(file,"    jr $ra");
+            fprintf(file,"    jr $ra\n");
         }
         else
         {
@@ -258,7 +279,7 @@ void trans_Stmt(Node*root,FILE*file){
             //char* r1=deal_value(t1);
             fprintf(file,"    li $v0,%d\n",n2->child->snum);
             //fprintf(file,"    move $v0,%s\n",r1);
-            fprintf(file,"    jr $ra");
+            fprintf(file,"    jr $ra\n");
         }
         
      }
@@ -269,7 +290,8 @@ void trans_Stmt(Node*root,FILE*file){
         char* r1=deal_value(newlist1->inter,file);
         fprintf(file,"    move $v0,%s\n",r1);
         free_reg(r1);
-        fprintf(file,"    jr $ra");
+        exit_func(file);
+        fprintf(file,"    jr $ra\n");
      }
      else{
      char*t1=newtemp();
@@ -278,7 +300,8 @@ void trans_Stmt(Node*root,FILE*file){
      char* r1=deal_value(t1,file);
      fprintf(file,"    move $v0,%s\n",r1);
      free_reg(t1);
-     fprintf(file,"    jr $ra");
+     exit_func(file);
+     fprintf(file,"    jr $ra\n");
      }
    } 
  else if(strcmp(n1->name,"IF")==0){
@@ -429,7 +452,7 @@ void trans_Cond(Node*root,char*label_true,char*label_false,FILE* file){
         //fprintf(file,"IF %s != #0 GOTO %s\n",t1,label_true);
         {
             char* v1=deal_value(t1,file);
-            fprintf(file,"bne %s,$0,%s",t1,label_true);
+            fprintf(file,"    bne %s,$0,%s\n",v1,label_true);
             free_reg(v1);
         }
 
@@ -487,16 +510,16 @@ void trans_Exp(Node* root,FILE* file,char* place){
             trans_Exp(n3,file,t2);
 
             //fprintf(file,"*%s := %s\n",t1,t2);
-            char*r1=deal_value(t1);
-            char*r2=deal_value(t2);
-            fprintf(file,"    sw %s,0(%s)\n",r1,r2);
-            assign_v(t1,t2);
+            // char*r1=deal_value(t1,file);
+            // char*r2=deal_value(t2,file);
+            // fprintf(file,"    sw %s,0(%s)\n",r1,r2);
+            assign_addr(t2,t1,1,file);
 
             if(place!=NULL){
-                //fprintf(file,"%s  :=  *%s\n",place,t1);
-                char* r3=deal_value(place);
-                fprintf(file,"    lw %s,0(%s)\n",r3,r1);
-                assign_v(place,t1);
+                // fprintf(file,"%s  :=  *%s\n",place,t1);
+                // char* r3=deal_value(place,file);
+                // fprintf(file,"    lw %s,0(%s)\n",r3,r1);
+                assign_addr(place,t1,2,file);
              }
            }
         }
@@ -619,10 +642,18 @@ void trans_Exp(Node* root,FILE* file,char* place){
             if(type12!=NULL && type12->kind==ARRAY){
                 sizenum=getSize(type12->u.array.elem);
             }
-           fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
-           fprintf(file,"%s := %s + %s\n",t3,t4,t2);
+           //fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
+           char* t5=newtemp();
+           assign_i(t5,sizenum,file);
+           operation2(t2,t1,t5,'*',file);
+
+           //fprintf(file,"%s := %s + %s\n",t3,t4,t2);
+           operation2(t3,t4,t2,'+',file);
+
            if(place!=NULL)
-           fprintf(file,"%s := *%s\n",place,t3);
+           //fprintf(file,"%s := *%s\n",place,t3);
+           assign_addr(place,t3,2,file);
+
       }
       else if(strcmp(n2->name,"DOT")==0){
 //| Exp DOT ID 样例中不会出现结构体类型，不管
@@ -733,17 +764,26 @@ else if(strcmp(n1->name,"ID")==0){
             fprintf(file,"    jal write\n");
             fprintf(file,"    lw $ra, 0($sp)\n");
             fprintf(file,"    addi $sp, $sp, 4\n");
+            if(place==NULL){
+                    char* t1=newtemp();
+                    assign_from_const_reg(t1,"$v0",file);
+                }
+                else{
+                    assign_from_const_reg(place,"$v0",file);
+                }
+
         }
         else{
             int num=0;
-                    while(arglist!=NULL)
+            FieldList arglist_temp=arglist;
+                    while(arglist_temp!=NULL)
                     {
                         num++;
-                        arglist = arglist->tail;
+                        arglist_temp = arglist_temp->tail;
                     }
                     if(num>4)
                     fprintf(file,"    subu $sp, $sp,%d\n",4*num-16);
-                    int i=0;
+                    int i=num-1;
                     while(arglist!=NULL)
                     {
                         //fprintf(file,"ARG %s\n",arglist->inter);
@@ -755,7 +795,7 @@ else if(strcmp(n1->name,"ID")==0){
                         }
                         free_reg(v1);
                         arglist = arglist->tail;
-                        i++;
+                        i--;
                     }
                     fprintf(file,"    jal %s\n",n1->sID);
 
@@ -764,6 +804,8 @@ else if(strcmp(n1->name,"ID")==0){
                     // fprintf(file,"    sw $ra, 0($sp)\n");
                     // fprintf(file,"    jal write\n");
                     // fprintf(file,"    lw $ra, 0($sp)\n");
+
+
                 if(place==NULL){
 
                     //fprintf(file,"%s := CALL %s\n",newtemp(),n1->sID);
@@ -851,9 +893,23 @@ void transaddr_Exp(Node* root,FILE*file,char* place){
            newlist1->inter=newvariable();
         if(place!=NULL){
             if(newlist1->flag1==0)
-            fprintf(file,"%s := &%s\n",place,newlist1->inter);
+            //fprintf(file,"%s := &%s\n",place,newlist1->inter);
+            {
+                int arr_off=get_offset(newlist1->inter);
+                char* r1=deal_value(place,file);
+
+                fprintf(file,"    addi %s,$fp,-%d\n",r1,arr_off);
+                Varible var1=search_var(place);
+                if(var1==NULL) {//如果变量不存在，栈中开一块新区域存该变量的值，并产生一个新的变量
+                    var1=new_var(place);
+                    fprintf(file,"    subu $sp,$sp,4\n");    
+                }
+                fprintf(file,"    sw %s,-%d($fp)\n",r1,var1->offset);//无论name1对应的变量是否存在，在本次运算中值改变了，因此需要将其写回栈中
+                free_reg(r1);
+            }
             else
-            fprintf(file,"%s := %s\n",place,newlist1->inter);
+            //fprintf(file,"%s := %s\n",place,newlist1->inter);
+            assign_v(place,newlist1->inter,file);
         }
     }
     else if(strcmp(n1->name,"Exp")==0){
@@ -869,9 +925,16 @@ void transaddr_Exp(Node* root,FILE*file,char* place){
             if(type12!=NULL && type12->kind==ARRAY){
                 sizenum=getSize(type12->u.array.elem);
             }
-           fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
+
+           //fprintf(file,"%s := %s * #%d\n",t2,t1,sizenum);
+           char *t3=newtemp();
+           assign_i(t3,sizenum,file);
+           operation2(t2,t1,t3,'*',file);
+
+
            if(place!=NULL)
-           fprintf(file,"%s := %s + %s\n",place,t4,t2);
+           //fprintf(file,"%s := %s + %s\n",place,t4,t2);
+           operation2(place,t4,t2,'+',file);
       }
       else if(strcmp(n2->name,"DOT")==0){
 //| Exp DOT ID 样例中不会出现结构体类型，不管
